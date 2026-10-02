@@ -20,9 +20,10 @@ app.use(express.json());
 
 // Inisialisasi Midtrans langsung menggunakan Server Key
 let snap = new midtransClient.Snap({
-    isProduction: true,
-    serverKey: 'Mid-server-wM7VLW55w3ItMb_7HTjmQGGx' // Key Production Asli!
+    isProduction: false, // Ubah jadi false
+    serverKey: 'Mid-server-bYptfD-POFx97aUo3DwrEHAJ' // Key Sandbox
 });
+
 
 
 app.post('/api/create-transaction', async (req, res) => {
