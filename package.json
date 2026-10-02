@@ -1,0 +1,8 @@
+{
+  "name": "axstopup-backend",
+  "version": "1.0.0",
+  "main": "api/index.js",
+  "dependencies": {
+    "midtrans-client": "^1.4.2"
+  }
+}
