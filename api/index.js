@@ -4,7 +4,7 @@ const midtransClient = require('midtrans-client');
 
 const app = express();
 
-// Set Header CORS Lengkap
+// Enable CORS
 app.use(cors());
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Origin', '*');
@@ -18,9 +18,10 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 
+// Inisialisasi Midtrans langsung menggunakan Server Key
 let snap = new midtransClient.Snap({
     isProduction: true,
-    serverKey: process.env.MIDTRANS_SERVER_KEY
+    serverKey: 'Mid-server-bYptfD-POFx97aUo3DwrEHAJ'
 });
 
 app.post('/api/create-transaction', async (req, res) => {
@@ -40,17 +41,16 @@ app.post('/api/create-transaction', async (req, res) => {
             }],
             "customer_details": {
                 "first_name": "User",
-                "last_name": userId
+                "last_name": String(userId)
             }
         };
 
         const transaction = await snap.createTransaction(parameter);
         res.status(200).json({ token: transaction.token });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: error.message });
+        console.error("Midtrans Error:", error);
+        res.status(500).json({ error: error.message || "Gagal membuat transaksi" });
     }
 });
 
 module.exports = app;
-
