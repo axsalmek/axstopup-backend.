@@ -1,19 +1,23 @@
+const express = require('express');
+const cors = require('cors');
 const midtransClient = require('midtrans-client');
 
+const app = express();
+
+// Izinkan domain website kamu
+app.use(cors({
+    origin: '*' // Mengizinkan semua domain (termasuk www.axstopup.store) mengakses backend
+}));
+
+app.use(express.json());
+
 let snap = new midtransClient.Snap({
-    isProduction: false,
-    serverKey: 'SB-Mid-server-PASTE_SERVER_KEY_KAMU' // Ganti dengan Server Key Sandbox Midtrans kamu
+    isProduction: true,
+    serverKey: process.env.MIDTRANS_SERVER_KEY
 });
 
-module.exports = async (req, res) => {
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-
-    if (req.method === 'OPTIONS') {
-        return res.status(200).end();
-    }
-
-    if (req.method === 'POST' && req.url === '/api/create-transaction') {
+app.post('/api/create-transaction', async (req, res) => {
+    try {
         const { userId, price, itemName } = req.body;
 
         let parameter = {
@@ -25,28 +29,20 @@ module.exports = async (req, res) => {
                 "id": "ITEM-1",
                 "price": parseInt(price),
                 "quantity": 1,
-                "name": itemName || "Diamond Topup"
+                "name": itemName || "Diamond ML"
             }],
             "customer_details": {
-                "first_name": "User ID: " + userId
+                "first_name": "User",
+                "last_name": userId
             }
         };
 
-        try {
-            const transaction = await snap.createTransaction(parameter);
-            return res.status(200).json({ token: transaction.token });
-        } catch (error) {
-            return res.status(500).json({ error: error.message });
-        }
+        const transaction = await snap.createTransaction(parameter);
+        res.status(200).json({ token: transaction.token });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
     }
+});
 
-    if (req.method === 'POST' && req.url === '/api/midtrans-callback') {
-        const notif = req.body;
-        if (notif.transaction_status == 'settlement' || notif.transaction_status == 'capture') {
-            console.log(`Order ${notif.order_id} LUNAS!`);
-        }
-        return res.status(200).send('OK');
-    }
-
-    return res.status(404).send('Not Found');
-};
+module.exports = app;
