@@ -4,10 +4,17 @@ const midtransClient = require('midtrans-client');
 
 const app = express();
 
-// Izinkan domain website kamu
-app.use(cors({
-    origin: '*' // Mengizinkan semua domain (termasuk www.axstopup.store) mengakses backend
-}));
+// Set Header CORS Lengkap
+app.use(cors());
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  if (req.method === 'OPTIONS') {
+     return res.status(200).end();
+  }
+  next();
+});
 
 app.use(express.json());
 
@@ -46,3 +53,4 @@ app.post('/api/create-transaction', async (req, res) => {
 });
 
 module.exports = app;
+
